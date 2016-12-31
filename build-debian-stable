@@ -1,0 +1,24 @@
+#!/bin/bash
+
+[ -n "$DEBUG" ] && set -x || DEBUG=
+set -eu
+
+if [ $EUID -ne 0 ]; then
+  echo "root required" >&2
+  exit 1
+fi
+
+readonly dir=$(mktemp -d "/tmp/ac-${0#./}-XXXXXX")
+[ -n "$DEBUG" ] || trap "rm -rf '${dir}'" EXIT
+readonly debian_dir="${dir}/rootfs"
+readonly acbuild_dir="${dir}/.acbuild"
+
+[ -e "${debian_dir}" ] || \
+debootstrap --arch=amd64 --variant=minbase --include=git,curl,ca-certificates jessie "${debian_dir}"
+
+acbuild --work-path "${acbuild_dir}" begin
+acbuild --work-path "${acbuild_dir}" copy-to-dir "${debian_dir}/"* /
+acbuild --work-path "${acbuild_dir}" set-name schu.io/debian
+acbuild --work-path "${acbuild_dir}" label add version jessie
+acbuild --work-path "${acbuild_dir}" set-exec -- /bin/bash
+acbuild --work-path "${acbuild_dir}" write --overwrite debian-jessie-linux-amd64.aci
