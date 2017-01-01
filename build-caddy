@@ -1,0 +1,34 @@
+#!/bin/bash
+
+[ -n "$DEBUG" ] && set -x || DEBUG=
+set -eu
+
+if [ $EUID -ne 0 ]; then
+  echo "root required" >&2
+  exit 1
+fi
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 <caddy version>" >&2
+  exit 1
+fi
+
+if [ ! -f "./caddy" ]; then
+  echo "Couldn't find './caddy' binary" >&2
+  exit 1
+fi
+
+readonly dir=$(mktemp -d "/tmp/ac-${0#./}-XXXXXX")
+[ -n "$DEBUG" ] || trap "rm -rf '${dir}'" EXIT
+readonly acbuild_dir="${dir}/.acbuild"
+
+acbuild --work-path "${acbuild_dir}" begin
+acbuild --work-path "${acbuild_dir}" dep add schu.io/debian:jessie
+acbuild --work-path "${acbuild_dir}" copy caddy /usr/bin/caddy
+acbuild --work-path "${acbuild_dir}" port add caddy tcp 2015
+acbuild --work-path "${acbuild_dir}" port add https tcp 443
+acbuild --work-path "${acbuild_dir}" port add http tcp 80
+acbuild --work-path "${acbuild_dir}" set-name schu.io/caddy
+acbuild --work-path "${acbuild_dir}" label add version "${1}"
+acbuild --work-path "${acbuild_dir}" set-exec -- /usr/bin/caddy
+acbuild --work-path "${acbuild_dir}" write --overwrite caddy-${1}-linux-amd64.aci
