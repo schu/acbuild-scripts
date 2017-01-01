@@ -14,7 +14,7 @@ readonly debian_dir="${dir}/rootfs"
 readonly acbuild_dir="${dir}/.acbuild"
 
 [ -e "${debian_dir}" ] || \
-debootstrap --arch=amd64 --variant=minbase --include=git,curl,ca-certificates jessie "${debian_dir}"
+debootstrap --arch=amd64 --variant=minbase --include=git,curl,ca-certificates,ssh jessie "${debian_dir}"
 
 acbuild --work-path "${acbuild_dir}" begin
 acbuild --work-path "${acbuild_dir}" copy-to-dir "${debian_dir}/"* /
