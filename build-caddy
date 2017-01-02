@@ -25,6 +25,7 @@ readonly acbuild_dir="${dir}/.acbuild"
 acbuild --work-path "${acbuild_dir}" begin
 acbuild --work-path "${acbuild_dir}" dep add schu.io/debian:jessie
 acbuild --work-path "${acbuild_dir}" copy caddy /usr/bin/caddy
+acbuild --work-path "${acbuild_dir}" run -- bash -c 'mkdir -p /root/.ssh ; ssh-keyscan gitlab.com >>/root/.ssh/known_hosts'
 acbuild --work-path "${acbuild_dir}" port add caddy tcp 2015
 acbuild --work-path "${acbuild_dir}" port add https tcp 443
 acbuild --work-path "${acbuild_dir}" port add http tcp 80
