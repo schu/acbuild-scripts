@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -eu
+
+gpg --output "${1}.asc" --detach-sig "${1}"
