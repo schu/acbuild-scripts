@@ -19,7 +19,7 @@ if [ ! -f "./caddy" ]; then
 fi
 
 readonly dir=$(mktemp -d "/tmp/ac-${0#./}-XXXXXX")
-[ -n "$DEBUG" ] || trap "rm -rf '${dir}'" EXIT
+[ -n "$DEBUG" ] || trap 'rm -rf "${dir}"' EXIT
 readonly acbuild_dir="${dir}/.acbuild"
 
 acbuild --work-path "${acbuild_dir}" begin
